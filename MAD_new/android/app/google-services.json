@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "786564772089",
+    "project_id": "skilltime-pro",
+    "storage_bucket": "skilltime-pro.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:786564772089:android:49bef6c9123f2f837e3228",
+        "android_client_info": {
+          "package_name": "com.skilltime.skill_time"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "786564772089-c75q79v16rrmjope9jg24qjscf0v06u7.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.skilltime.skill_time",
+            "certificate_hash": "14851b197ebb938a7bfbe5e7fc6cd9b121a3050e"
+          }
+        },
+        {
+          "client_id": "786564772089-dv7s6i86org73or59b621tiffqs4um5n.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBjuuyQRwsqCFYCcjfOFGpNBKczSI4HzZA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "786564772089-dv7s6i86org73or59b621tiffqs4um5n.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "786564772089-g92kboq1l1dm82dp1mdgj2fbuuiqodd1.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.skilltime.skillTime"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
