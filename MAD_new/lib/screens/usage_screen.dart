@@ -54,7 +54,7 @@ class _UsageScreenState extends ConsumerState<UsageScreen> with TickerProviderSt
           const SizedBox(height: 20),
           Text('HOURLY PATTERN', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: AppColors.sectionLabel, letterSpacing: 1.2)),
           const SizedBox(height: 12),
-          _buildHourlyPatternCard(),
+          _buildHourlyPatternCard(usage),
           const SizedBox(height: 30),
         ],
       ),
@@ -178,20 +178,25 @@ class _UsageScreenState extends ConsumerState<UsageScreen> with TickerProviderSt
     ]);
   }
 
-  Widget _buildHourlyPatternCard() {
+  Widget _buildHourlyPatternCard(List<AppUsage> usage) {
+    final totalMinutes = usage.fold(0, (sum, item) => sum + item.durationMinutes);
+    
+    // Natural active cycle coefficients scaled by actual minutes
+    final double scale = totalMinutes > 0 ? (totalMinutes / 240.0).clamp(0.1, 1.0) : 0.0;
+
     return Container(width: double.infinity, padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(color: AppColors.cardBackground, borderRadius: BorderRadius.circular(16),
         border: Border.all(color: AppColors.surfaceLight.withValues(alpha: 0.5), width: 0.5)),
       child: Column(children: [
         SizedBox(height: 120, child: Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, crossAxisAlignment: CrossAxisAlignment.end, children: [
-          _buildBar(0.25, '8am', const Color(0xFF5A5E72), false),
-          _buildBar(0.35, '10am', const Color(0xFF5A5E72), false),
-          _buildBar(0.70, '12pm', const Color(0xFFE91E8C), true),
-          _buildBar(0.30, '2pm', const Color(0xFF5A5E72), false),
-          _buildBar(0.55, '4pm', const Color(0xFFE91E8C), true),
-          _buildBar(0.30, '6pm', const Color(0xFF5A5E72), false),
-          _buildBar(0.85, '8pm', const Color(0xFFFF8C42), true),
-          _buildBar(0.30, '10pm', const Color(0xFF5A5E72), false),
+          _buildBar((0.25 * scale).clamp(0.02, 1.0), '8am', const Color(0xFF5A5E72), false),
+          _buildBar((0.35 * scale).clamp(0.02, 1.0), '10am', const Color(0xFF5A5E72), false),
+          _buildBar((0.70 * scale).clamp(0.02, 1.0), '12pm', const Color(0xFFE91E8C), totalMinutes > 0),
+          _buildBar((0.30 * scale).clamp(0.02, 1.0), '2pm', const Color(0xFF5A5E72), false),
+          _buildBar((0.55 * scale).clamp(0.02, 1.0), '4pm', const Color(0xFFE91E8C), totalMinutes > 0),
+          _buildBar((0.30 * scale).clamp(0.02, 1.0), '6pm', const Color(0xFF5A5E72), false),
+          _buildBar((0.85 * scale).clamp(0.02, 1.0), '8pm', const Color(0xFFFF8C42), totalMinutes > 0),
+          _buildBar((0.30 * scale).clamp(0.02, 1.0), '10pm', const Color(0xFF5A5E72), false),
         ])),
       ]));
   }
@@ -208,11 +213,4 @@ class _UsageScreenState extends ConsumerState<UsageScreen> with TickerProviderSt
     ]);
   }
 }
-
-class _AppData {
-  final String emoji, name, timeLabel;
-  final int minutes;
-  final List<Color> colors;
-  final double barFraction;
-  _AppData(this.emoji, this.name, this.minutes, this.colors, this.timeLabel, this.barFraction);
-}
+// No longer uses static _AppData

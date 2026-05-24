@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/usage_provider.dart';
 import '../providers/auth_provider.dart';
+import '../providers/recommendation_provider.dart';
 import '../theme/app_theme.dart';
 import '../repositories/auth_repository.dart';
 
@@ -214,6 +215,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
   );
 }
 
+
   Widget _buildProductivityScoreCard() {
     final productivityScore = ref.watch(productivityScoreProvider);
     final socialTime = ref.watch(socialTimeProvider);
@@ -227,6 +229,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     return AnimatedBuilder(
       animation: Listenable.merge([_scaleAnimation, _scoreAnimation, _glowPulseAnimation]),
       builder: (context, child) {
+        final isHighProductive = productivityScore >= 0.7;
+        final isBalanced = productivityScore >= 0.4 && productivityScore < 0.7;
+        final bannerEmoji = isHighProductive ? '🏆' : isBalanced ? '⚡' : '⚠️';
+        final bannerText = isHighProductive ? 'Highly Productive' : isBalanced ? 'Balanced Focus' : 'High Social Usage';
+        final bannerColor = isHighProductive ? AppColors.green : isBalanced ? AppColors.orange : AppColors.yellow;
+        final bannerBg = isHighProductive ? AppColors.green.withValues(alpha: 0.15) : isBalanced ? AppColors.orange.withValues(alpha: 0.15) : AppColors.yellowBg;
+
         return Transform.scale(
           scale: _scaleAnimation.value.clamp(0.0, 1.0),
           child: Container(
@@ -311,23 +320,23 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
                               vertical: 6,
                             ),
                             decoration: BoxDecoration(
-                              color: AppColors.yellowBg,
+                              color: bannerBg,
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                const Text(
-                                  '⚠️',
-                                  style: TextStyle(fontSize: 14),
+                                Text(
+                                  bannerEmoji,
+                                  style: const TextStyle(fontSize: 14),
                                 ),
                                 const SizedBox(width: 6),
                                 Text(
-                                  'High Social Usage',
+                                  bannerText,
                                   style: TextStyle(
                                     fontSize: 13,
                                     fontWeight: FontWeight.w600,
-                                    color: AppColors.yellow,
+                                    color: bannerColor,
                                   ),
                                 ),
                               ],
@@ -493,8 +502,106 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
     return '📱';
   }
 
+
   Widget _buildStatsGrid() {
     final socialTime = ref.watch(socialTimeProvider);
+    final profile = ref.watch(userProfileProvider).value;
+    
+    List<_InsightMetric> dynamicMetrics = [];
+    
+    if (profile != null && profile.interests.isNotEmpty) {
+      final interests = profile.interests.take(3).toList();
+      
+      for (var interest in interests) {
+        switch (interest.toLowerCase()) {
+          case 'coding':
+          case 'app development':
+          case 'web development':
+            dynamicMetrics.add(_InsightMetric(
+              emoji: '💻',
+              label: 'Code Lessons\nmissed',
+              value: '${(socialTime / 15.0).round()}',
+              color: AppColors.blue,
+            ));
+            break;
+          case 'ai/ml':
+          case 'data science':
+            dynamicMetrics.add(_InsightMetric(
+              emoji: '🤖',
+              label: 'Models\nuntrained',
+              value: '${(socialTime / 25.0).round()}',
+              color: AppColors.purple,
+            ));
+            break;
+          case 'fitness':
+            dynamicMetrics.add(_InsightMetric(
+              emoji: '🏃',
+              label: 'Workouts\nmissed',
+              value: '${(socialTime / 30.0).round()}',
+              color: AppColors.green,
+            ));
+            break;
+          case 'reading':
+            dynamicMetrics.add(_InsightMetric(
+              emoji: '📖',
+              label: 'Pages Lost\ncould\'ve read',
+              value: '${(socialTime * 1.5).round()}',
+              color: AppColors.purple,
+            ));
+            break;
+          case 'finance':
+            dynamicMetrics.add(_InsightMetric(
+              emoji: '📈',
+              label: 'Market Trends\nunnoticed',
+              value: '${(socialTime / 10.0).round()}',
+              color: AppColors.green,
+            ));
+            break;
+          case 'design':
+          case 'ui/ux':
+            dynamicMetrics.add(_InsightMetric(
+              emoji: '🎨',
+              label: 'UI Mockups\nunbuilt',
+              value: '${(socialTime / 20.0).round()}',
+              color: AppColors.pink,
+            ));
+            break;
+          default:
+            dynamicMetrics.add(_InsightMetric(
+              emoji: '🧠',
+              label: '${interest} Ideas\nmissed',
+              value: '${(socialTime / 10.0).round()}',
+              color: AppColors.orange,
+            ));
+        }
+      }
+    }
+
+    if (dynamicMetrics.isEmpty) {
+      dynamicMetrics.add(_InsightMetric(
+        emoji: '📖',
+        label: 'Pages Lost\ncould\'ve read',
+        value: '${(socialTime * 1.5).round()}',
+        color: AppColors.purple,
+      ));
+    }
+    if (dynamicMetrics.length < 2) {
+      dynamicMetrics.add(_InsightMetric(
+        emoji: '💻',
+        label: 'Code Lessons\nmissed',
+        value: '${(socialTime / 15.0).round()}',
+        color: AppColors.blue,
+      ));
+    }
+    if (dynamicMetrics.length < 3) {
+      dynamicMetrics.add(_InsightMetric(
+        emoji: '🧠',
+        label: 'Words Lost\nvocab potential',
+        value: '${(socialTime * 2.5).round()}',
+        color: AppColors.pink,
+      ));
+    }
+
     return Column(
       children: [
         Row(
@@ -510,10 +617,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
             const SizedBox(width: 12),
             Expanded(
               child: _buildStatCard(
-                '📖',
-                '383',
-                "Pages Lost\ncould've read",
-                AppColors.purple,
+                dynamicMetrics[0].emoji,
+                dynamicMetrics[0].value,
+                dynamicMetrics[0].label,
+                dynamicMetrics[0].color,
               ),
             ),
           ],
@@ -523,19 +630,19 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
           children: [
             Expanded(
               child: _buildStatCard(
-                '💻',
-                '17',
-                'Code Lessons missed',
-                AppColors.blue,
+                dynamicMetrics[1].emoji,
+                dynamicMetrics[1].value,
+                dynamicMetrics[1].label,
+                dynamicMetrics[1].color,
               ),
             ),
             const SizedBox(width: 12),
             Expanded(
               child: _buildStatCard(
-                '🧠',
-                '510',
-                'Words Lost vocab potential',
-                AppColors.pink,
+                dynamicMetrics[2].emoji,
+                dynamicMetrics[2].value,
+                dynamicMetrics[2].label,
+                dynamicMetrics[2].color,
               ),
             ),
           ],
@@ -586,6 +693,20 @@ class _HomeScreenState extends ConsumerState<HomeScreen>
       ),
     );
   }
+}
+
+class _InsightMetric {
+  final String emoji;
+  final String label;
+  final String value;
+  final Color color;
+
+  _InsightMetric({
+    required this.emoji,
+    required this.label,
+    required this.value,
+    required this.color,
+  });
 }
 
 // Custom donut painter for animated productivity score with neon glow

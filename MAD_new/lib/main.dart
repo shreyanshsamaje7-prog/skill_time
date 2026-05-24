@@ -5,24 +5,27 @@ import 'screens/usage_screen.dart';
 import 'screens/achieve_screen.dart';
 import 'screens/report_screen.dart';
 import 'screens/goals_screen.dart';
-import 'screens/login_screen.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_core/firebase_core.dart';
 import '../firebase_options.dart';
 import 'core/router.dart';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  FirebaseFirestore.instance.settings = const Settings(persistenceEnabled: true);
   runApp(const ProviderScope(child: SkillTimeApp()));
 }
 
 class SkillTimeApp extends ConsumerWidget {
   const SkillTimeApp({super.key});
 
+  @override
   Widget build(BuildContext context, WidgetRef ref) {
     final router = ref.watch(routerProvider);
     return MaterialApp.router(

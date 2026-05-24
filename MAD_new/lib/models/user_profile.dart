@@ -6,6 +6,8 @@ class UserProfile {
   final String? profileImage;
   final String bio;
   final List<String> skills;
+  final List<String> interests;
+  final bool onboardingCompleted;
   final DateTime joinedDate;
   final int streaks;
   final int xpPoints;
@@ -19,6 +21,8 @@ class UserProfile {
     this.profileImage,
     required this.bio,
     required this.skills,
+    this.interests = const [],
+    this.onboardingCompleted = false,
     required this.joinedDate,
     required this.streaks,
     required this.xpPoints,
@@ -34,6 +38,8 @@ class UserProfile {
       profileImage: json['profileImage'],
       bio: json['bio'] ?? '',
       skills: List<String>.from(json['skills'] ?? []),
+      interests: List<String>.from(json['interests'] ?? []),
+      onboardingCompleted: json['onboardingCompleted'] ?? false,
       joinedDate: json['joinedDate'] != null 
           ? DateTime.parse(json['joinedDate']) 
           : DateTime.now(),
@@ -51,6 +57,8 @@ class UserProfile {
       'profileImage': profileImage,
       'bio': bio,
       'skills': skills,
+      'interests': interests,
+      'onboardingCompleted': onboardingCompleted,
       'joinedDate': joinedDate.toIso8601String(),
       'streaks': streaks,
       'xpPoints': xpPoints,
@@ -66,6 +74,8 @@ class UserProfile {
     String? profileImage,
     String? bio,
     List<String>? skills,
+    List<String>? interests,
+    bool? onboardingCompleted,
     DateTime? joinedDate,
     int? streaks,
     int? xpPoints,
@@ -79,6 +89,8 @@ class UserProfile {
       profileImage: profileImage ?? this.profileImage,
       bio: bio ?? this.bio,
       skills: skills ?? this.skills,
+      interests: interests ?? this.interests,
+      onboardingCompleted: onboardingCompleted ?? this.onboardingCompleted,
       joinedDate: joinedDate ?? this.joinedDate,
       streaks: streaks ?? this.streaks,
       xpPoints: xpPoints ?? this.xpPoints,

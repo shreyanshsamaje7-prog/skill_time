@@ -172,7 +172,21 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                 Align(
                   alignment: Alignment.centerRight,
                   child: TextButton(
-                    onPressed: () {},
+                    onPressed: () async {
+                      final email = _emailController.text.trim();
+                      if (email.isEmpty) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Please enter your email to reset password')),
+                        );
+                        return;
+                      }
+                      await ref.read(authNotifierProvider.notifier).resetPassword(email);
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Password reset link sent to your email')),
+                        );
+                      }
+                    },
                     child: Text(
                       'Forgot Password?',
                       style: TextStyle(
